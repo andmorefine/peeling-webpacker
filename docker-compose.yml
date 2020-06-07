@@ -2,30 +2,38 @@ version: '3'
 services:
   web:
     build: .
-    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    command:
+      [ "bash", "-c", "rm -f tmp/pids/server.pid; RAILS_ENV=development bundle exec rails s -b 0.0.0.0" ]
     env_file:
       - "./.env.dev"
     volumes:
-      - ".:/app"
+      - .:/app:cached
+      - bundle:/usr/local/bundle
+    stdin_open: true
+    tty: true
     ports:
       - "3000:3000"
     depends_on:
       - db
+    environment:
+      APP_DATABASE_HOST: db
+      APP_DATABASE_USERNAME: postgres
+      APP_DATABASE_PASSWORD: password
   db:
     image: "postgres:11.2"
+    volumes:
+      - db:/var/lib/postgresql/data
     environment:
-      - "POSTGRES_USER=postgres"
-      - "POSTGRES_PASSWORD=password"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
   data:
     image: "busybox"
     volumes:
-      - "db:/var/lib/postgresql/data"
-      - "bundle:/usr/local/bundle"
+      - db:/var/lib/postgresql/data
+      - bundle:/usr/local/bundle
 
 volumes:
   db:
-    driver: local
   bundle:
-    driver: local
