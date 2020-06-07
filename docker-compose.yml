@@ -7,7 +7,7 @@ services:
     env_file:
       - "./.env.dev"
     volumes:
-      - .:/app:cached
+      - .:/app
       - bundle:/usr/local/bundle
     stdin_open: true
     tty: true
@@ -15,20 +15,13 @@ services:
       - "3000:3000"
     depends_on:
       - db
-    environment:
-      APP_DATABASE_HOST: db
-      APP_DATABASE_USERNAME: postgres
-      APP_DATABASE_PASSWORD: password
   db:
-    image: "postgres:11.2"
+    image: mysql:5.7
     volumes:
-      - db:/var/lib/postgresql/data
+      - ./db/mysql_data:/var/lib/mysql
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     ports:
-      - "5432:5432"
-
+      - "3316:3306"
 volumes:
-  db:
   bundle:
